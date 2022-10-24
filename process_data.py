@@ -1,6 +1,6 @@
 import json
 from tqdm import tqdm
-import nltk
+import math
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem import PorterStemmer
 from nltk.stem import WordNetLemmatizer
@@ -30,44 +30,66 @@ def store_data(data_json, data_url):
         json.dump(data_json, write_file, ensure_ascii=False)
 
 
+def lemmatize_and_stem(word):
+
+    if (len(word) > 2 or word.isnumeric()) and word not in stop_words:
+        l_w = wl.lemmatize(word)
+        s_w = ps.stem(l_w)
+
+        if s_w not in stop_words:
+            return s_w
+    else:
+        return None
+
+
 def preprocessing(alt_names, uniqe_words, title_id):
-    # tokenization = nltk.word_tokenize(alt_names)
     tokenization = tokenizer.tokenize(alt_names)
     words = []
-    for w in tokenization:
-        if len(w) > 2 or w.isnumeric():
-            word_root = ps.stem(w)
-            if word_root not in stop_words:
-                # words.append(wl.lemmatize(w)) # sample: 1000, uw: 15 497
-                # words.append(ps.stem(w)) # sample: 1000, uw: 7 980
+    for word in tokenization:
+        processed_word = lemmatize_and_stem(word)
+        if processed_word is not None:
+            words.append(processed_word) #  sample: 1000m uw: 7 992
+            get_unique(processed_word, uniqe_words, title_id)
 
-                l_w = wl.lemmatize(w)
-                s_w = ps.stem(l_w)
-                words.append(s_w) # sample: 1000m uw: 7 992
-
-                get_unique(s_w, uniqe_words, title_id)
     return words
 
+def get_unique(word, unique_words, title_id):
 
-# {
-#   word: {
-#           id: 10,
-#           id2: 20,
-#          }
-# }
-
-# def get_unique(term, uniqe_words, title_id):
-def get_unique(word, uniqe_words, title_id):
-
-    # for word in term:
-    if word not in uniqe_words:
-        uniqe_words.update({word: {title_id: 1}})
+    if word not in unique_words:
+        unique_words.update({word: {title_id: 1}})
     else:
-        if title_id in uniqe_words[word]:
-            uniqe_words[word][title_id] += 1
+        if title_id in unique_words[word]:
+            unique_words[word][title_id] += 1
         else:
-            uniqe_words[word].update({title_id: 1})
+            unique_words[word].update({title_id: 1})
 
+
+"""
+TF-ID:
+
+cf(t) - pocet, kolkokrat sa vyraz t nachadza v celej kolekcii dokumentov
+tf(t,d) - pocet, kolkokrat sa vyraz t nachadza v dokumente d
+df(t) - pocet, v kolko dokumentoch sa vyraz t nachadza 
+N - pocet vsetkych dokumentov
+
+itdf(t) = log(N/df(t))
+tf-idf(t,d) = tf(t,d) x idf(t)
+"""
+
+def idft(unique_words, N):
+    print(f"Document number: {N}")
+
+    for item in unique_words:
+        df = len(unique_words[item])
+        idtf = math.log(N/df)
+        print(f"word: {item}")
+        for key in unique_words[item]:
+            tf = unique_words[item][key]
+            tf_idtf = tf * idtf
+            print("    - Document: {}, tf-idtf = {:.2f} ".format(key, tf_idtf))
+            print("          tf-idtf formula: {:.2f} x log({:.2f}/{:.2f}),".format(tf, N, df))
+
+        # print(unique_words[item])
 
 def parse_data(data_arr):
     original_output = {}
@@ -83,7 +105,6 @@ def parse_data(data_arr):
         for x in range(len(alt_names)):
             orig_names.append(alt_names[x])
             alt_names[x] = preprocessing(alt_names[x], unique_words, title_id)
-            # get_unique(alt_names[x], unique_words, title_id)
 
         original_line_json = {
                         title_id: orig_names
@@ -91,6 +112,7 @@ def parse_data(data_arr):
         original_output.update(original_line_json)
 
     # print(len(unique_words))
+    idft(unique_words, len(data_arr[0:1000]))
     # print(json.dumps(original_output["Q7777598"], indent=4))
     # print(json.dumps(unique_words, indent=4, ensure_ascii=False))
     return original_output, unique_words
