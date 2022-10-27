@@ -1,8 +1,7 @@
 import requests
-from collections import Counter
 from process_data import lemmatize_and_stem
 import re
-
+import operator
 
 def search_id(title, original_data_json):
     title = title.replace(" ", "+")
@@ -29,39 +28,54 @@ def search_id(title, original_data_json):
 def request_heading(id):
     search_url = f"https://www.wikidata.org/wiki/{id}"
     response = requests.get(search_url)
-    title = response.text.split("title>")[1][:-13]
+    title = re.search(r'(<title>).*(<\/title>)', response.text)
 
-    return title
+    return title.group(0)[7:-19]
 
 
 def search_alt_name(alt_name, unique_words, original_data_json):
-    unique_output = []
+    title_ids = {}
     processed_words = []
-    unique_count = 0
     operation = 0  # 0 - OR, 1 - AND
+
     if re.search("^\"((?!\").)*\"$", alt_name):
         alt_name = alt_name[1:-1]
         operation = 1
+
     for word in alt_name.split(" "):
         s_w = lemmatize_and_stem(word)
-        processed_words.append(s_w)
-        if s_w in unique_words:
-            unique_count += 1
-            unique_output += list(unique_words[s_w].keys())
-        else:
-            print(f"slovo: \"{word}\" (po uprave \"{s_w}\") sa v slovniku nenachadza")
-            return None
+        if s_w not in processed_words:
+            if s_w not in unique_words:
+                print(f"slovo: \"{word}\" (po uprave \"{s_w}\") sa v slovniku nenachadza")
+            else:
+                processed_words.append(s_w)
+
+                if len(title_ids) == 0:
+                    title_ids = unique_words[s_w]
+                else:
+                    set1 = set(title_ids)
+                    set2 = set(unique_words[s_w])
+                    if operation == 1:
+                        title_ids = {
+                            key: title_ids.get(key, 0) + unique_words[s_w].get(key, 0) for key in set1 & set2
+                        }
+                    elif operation == 0:
+                        title_ids = {
+                            key: title_ids.get(key, 0) + unique_words[s_w].get(key, 0) for key in set1 | set2
+                        }
+
+    if len(processed_words) == 0:
+        return None
+
+    title_ids = dict(sorted(title_ids.items(), key=operator.itemgetter(1), reverse=True))
+    output = list(title_ids.keys())
 
     # AND
     if operation == 1:
-        title_counts = dict(Counter(unique_output))
-        output = list(filter(lambda x: title_counts[x] == unique_count, title_counts))
-
-        print(f"Vysledok hladania alternativnych mien pre zadany vyraz \"{alt_name}\"")
+        print(f'Vysledok hladania alternativnych mien pre zadany vyraz: "{alt_name}"')
         for item in output:
-            # title = request_heading(item)
-            # print(f"Title: {title}, ID: {item}")
-            print(f"ID: {item}")
+            title = request_heading(item)
+            print(f'Title: "{title}", ID: {item}, TF: {title_ids[item]}')
             print("    " + '\n    '.join(original_data_json[item]))
             print("\n")
 
@@ -69,13 +83,10 @@ def search_alt_name(alt_name, unique_words, original_data_json):
 
     # OR
     elif operation == 0:
-        output = list(dict.fromkeys(unique_output))
-
-        print(f"Vysledok hladania alternativnych mien pre zadany vyraz {alt_name}")
+        print(f"Vysledok hladania alternativnych mien pre zadany vyraz: {alt_name}")
         for item in output:
-            # title = request_heading(item)
-            # print(f"Title: {title}, ID: {item}")
-            print(f"ID: {item}")
+            title = request_heading(item)
+            print(f'Title: "{title}", ID: {item}, TF: {title_ids[item]}')
             print("    " + '\n    '.join(original_data_json[item]))
             print("\n")
 

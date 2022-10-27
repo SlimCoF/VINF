@@ -1,3 +1,4 @@
+# pyspark
 import json
 from tqdm import tqdm
 import math
@@ -75,21 +76,16 @@ N - pocet vsetkych dokumentov
 itdf(t) = log(N/df(t))
 tf-idf(t,d) = tf(t,d) x idf(t)
 """
+# def idft(unique_words, N):
+#     print(f"Document number: {N}")
+#
+#     for item in unique_words:
+#         df = len(unique_words[item])
+#         idtf = math.log(N/df)
+#         for key in unique_words[item]:
+#             tf = unique_words[item][key]
+#             tf_idtf = tf * idtf
 
-def idft(unique_words, N):
-    print(f"Document number: {N}")
-
-    for item in unique_words:
-        df = len(unique_words[item])
-        idtf = math.log(N/df)
-        print(f"word: {item}")
-        for key in unique_words[item]:
-            tf = unique_words[item][key]
-            tf_idtf = tf * idtf
-            print("    - Document: {}, tf-idtf = {:.2f} ".format(key, tf_idtf))
-            print("          tf-idtf formula: {:.2f} x log({:.2f}/{:.2f}),".format(tf, N, df))
-
-        # print(unique_words[item])
 
 def parse_data(data_arr):
     original_output = {}
@@ -111,10 +107,7 @@ def parse_data(data_arr):
                     }
         original_output.update(original_line_json)
 
-    # print(len(unique_words))
-    idft(unique_words, len(data_arr[0:1000]))
-    # print(json.dumps(original_output["Q7777598"], indent=4))
-    # print(json.dumps(unique_words, indent=4, ensure_ascii=False))
+    # idft(unique_words, len(data_arr[0:1000]))
     return original_output, unique_words
 
 
