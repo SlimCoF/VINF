@@ -1,7 +1,6 @@
 # pyspark
 import json
 from tqdm import tqdm
-import math
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem import PorterStemmer
 from nltk.stem import WordNetLemmatizer
