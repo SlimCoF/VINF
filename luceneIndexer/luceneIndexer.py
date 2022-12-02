@@ -28,9 +28,8 @@ def indexRow(title_id, alt_names):
     writer.addDocument(doc)
 
 
-def dataToIndex(file_path):
-    path = "./data/extracted_data"
-    parquet_files = glob.glob(os.path.join(path, "*.parquet"))
+def dataToIndex(dir_path):
+    parquet_files = glob.glob(os.path.join(dir_path, "*.parquet"))
     df = pd.concat((pd.read_parquet(f) for f in parquet_files))
     
     index = df.index
@@ -43,4 +42,4 @@ def dataToIndex(file_path):
     writer.close()
 
 if __name__ == "__main__":
-    dataToIndex("./data/extracted_data/part-00000")
+    dataToIndex("./data/extracted_data")

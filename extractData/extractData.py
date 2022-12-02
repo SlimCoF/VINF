@@ -10,7 +10,7 @@ spark = SparkSession \
 sc = spark.sparkContext
 
 RAW_DATA_URL = "/user/root/wikidata5m_entity.txt"
-EXTRACTED_DATA_URL = "/user/root/data"
+EXTRACTED_DATA_URL = "/user/root/extracted_data"
 
 
 def exctractRawData(sc, rawDataPath):
@@ -29,6 +29,5 @@ if __name__ == '__main__':
             .option("header", "true")\
             .option("footer", "true")\
             .parquet(EXTRACTED_DATA_URL)\
-    # raw_data_df.saveAsTextFile(EXTRACTED_DATA_URL)
 
     print("Data boli extrahovane a ulozene!")
