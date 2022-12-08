@@ -8,7 +8,7 @@ VINF
 
 >>> extracted_data
 
->>>> _SUCCESS
+>>>> _SUCCESS\
 >>>> part-00000-d680c7b2-3b01-4cbb-ac4f-6546c62d0632-c000.snappy.parquet\
 >>>> part-00001-d680c7b2-3b01-4cbb-ac4f-6546c62d0632-c000.snappy.parquet\
 >>>> part-00002-d680c7b2-3b01-4cbb-ac4f-6546c62d0632-c000.snappy.parquet\
