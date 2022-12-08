@@ -1,3 +1,4 @@
-/data
-/venv
-.idea/
+/OLD/data
+/OLD/_pycache_
+/NEW/data
+

@@ -1,4 +1,0 @@
-pip install tqdm
-pip install pandas
-pip install pyarrow
-pip install fastparquet
