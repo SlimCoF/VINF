@@ -1,7 +1,7 @@
 # VINF
 
 ## Štruktúra projektu:
-VINF\
+VINF
 > NEW
 
 >> data (in .gitignore)
