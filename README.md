@@ -62,7 +62,7 @@ python main.py
 
 **NEW**
 * extractData.py
-  Docker: https://hub.docker.com/r/iisas/hadoop-spark-pig-hive
+  Docker: https://hub.docker.com/r/iisas/hadoop-spark-pig-hive \
   Treba do docker containeru presunúť ./extractData a ./data/wikidata5m_entity.txt.
   cmd:
   ```
@@ -72,7 +72,7 @@ python main.py
   hadoop fs -get ./extracted_data ./extractData
   ```
 * luceneIndexer.py
-  Docker: https://hub.docker.com/r/coady/pylucene\
+  Docker: https://hub.docker.com/r/coady/pylucene \
   Treba do docker containeru presunúť ./luceneIndexer a ./extracted_data (získané z extractData.py)
   cmd:
   ```
@@ -80,7 +80,7 @@ python main.py
   python /luceneIndexer/luceneIndexer.py
   ```
 * searching.py
-  Docker: https://hub.docker.com/r/coady/pylucene
+  Docker: https://hub.docker.com/r/coady/pylucene \
   Treba do docker containeru presunúť ./searching a ./index (môže sa použiť rovnaký kontajner ako pri luceneIndexer.py tým pádom sa tam ./index bude nachádať)
   cmd:
   ```
